@@ -26,16 +26,8 @@
   body{margin:0;background:linear-gradient(180deg,#1f2327 0,#171a1e 1100px,#121519 2000px) #121519 no-repeat;min-height:100vh;color:var(--label);font:17px/1.3 var(--font);-webkit-font-smoothing:antialiased;
     padding-bottom:max(40px,env(safe-area-inset-bottom))}
 
-  /* Navigationsleiste mit Unschärfe, Titel erscheint beim Scrollen */
-  .nav{letter-spacing:.14em;text-transform:uppercase;font-size:15px;position:sticky;top:0;z-index:5;height:calc(44px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);
-    display:flex;align-items:center;justify-content:center;font-weight:500;
-    background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
-    border-bottom:.5px solid transparent;transition:border-color .2s}
-  .nav span{opacity:0;transition:opacity .2s}
-  .nav.on{border-color:var(--sep)}
-  .nav.on span{opacity:1}
 
-  main{max-width:560px;margin:0 auto;padding:0 16px}
+  main{max-width:560px;margin:0 auto;padding:calc(env(safe-area-inset-top,0px) + 8px) 16px 0}
   h1{font-family:var(--display);font-size:40px;line-height:1.2;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:12px 0 18px;padding-top:2px}
 
   .progress{background:var(--card);color:var(--label);border-radius:20px;padding:16px 18px;margin-bottom:8px}
@@ -80,7 +72,7 @@
   .reset{display:block;width:100%;margin-top:24px;padding:14px;border:0;border-radius:20px;background:#e5392f;
     color:#fff;font:600 17px var(--font);cursor:pointer}
   .reset:active{background:#c42d25}
-  body.locked .nav, body.locked main{display:none}
+  body.locked main{display:none}
   .lock{display:none;position:fixed;inset:0;z-index:50;flex-direction:column;align-items:center;justify-content:center;gap:14px;
     padding:max(24px,env(safe-area-inset-top)) 28px max(24px,env(safe-area-inset-bottom));
     background:linear-gradient(180deg,#1b1e22 0,#0c0e11 70%) var(--bg)}
@@ -88,9 +80,12 @@
   .lock .ring{width:84px;height:84px;border-radius:50%;border:5px solid var(--green);display:grid;place-items:center;margin-bottom:6px}
   .lock .ring svg{width:34px;height:34px;color:var(--label)}
   .lock h2{margin:0 0 10px;font-family:var(--display);font-size:34px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
-  .lock input{width:100%;max-width:320px;height:54px;border-radius:20px;border:1.5px solid var(--line);background:var(--card);color:var(--label);
+  .lock input,.lock select{width:100%;max-width:320px;height:54px;border-radius:20px;border:1.5px solid var(--line);background:var(--card);color:var(--label);
     font:500 17px var(--font);text-align:center;letter-spacing:.12em;outline:none;-webkit-appearance:none;appearance:none}
-  .lock input:focus{border-color:var(--green)}
+  .lock input:focus,.lock select:focus{border-color:var(--mint)}
+  .lock select{text-align-last:center;text-align:center;letter-spacing:.06em;font-weight:600;cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%238e9399' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 18px center}
   .lock .go{width:100%;max-width:320px;height:54px;border:0;border-radius:20px;background:var(--green);color:#0c0e11;
     font:700 15px var(--font);letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
   .lock .go:active{transform:scale(.97)}
@@ -98,6 +93,60 @@
   .lock.shake input{animation:shake .4s}
   @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
   .lockbtn{display:block;margin:14px auto 0;background:none;border:0;color:var(--secondary);font:500 13px var(--font);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:8px}
+
+  .adjust{display:block;width:100%;margin-top:22px;padding:15px;border:0;border-radius:20px;background:#ffd60a;color:#1a1a1a;font:700 17px var(--font);cursor:pointer}
+  .adjust:active{background:#e6bf00}
+
+  body.editing main{display:none}
+  .editor{display:none;position:fixed;inset:0;z-index:40;background:linear-gradient(180deg,#1f2327 0,#171a1e 1100px,#121519 2000px) #121519;background-attachment:local;color:#fff;overflow-y:auto;-webkit-overflow-scrolling:touch}
+  .editor.open{display:block}
+  .ehead{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:8px;
+    padding:calc(env(safe-area-inset-top,0px) + 10px) 16px 10px;background:#000}
+  .ehead b{font-size:17px;font-weight:600;color:#fff}
+  .ehead button{border:0;background:none;font:500 16px var(--font);color:#ff3b30;padding:8px 4px;cursor:pointer}
+  .ehead .esave{background:#ffd60a;color:#1a1a1a;font-weight:700;border-radius:999px;padding:8px 18px}
+  .ewrap{padding:16px 0 calc(48px + env(safe-area-inset-bottom,0px))}
+  .ehint{margin:0 16px 14px;font-size:14px;color:#8a8a8e;line-height:1.4}
+  .escroll{overflow-x:auto;padding:0 16px 8px;-webkit-overflow-scrolling:touch}
+  .etable{display:flex;flex-direction:column;gap:8px;width:max-content}
+  .erow{display:grid;grid-template-columns:104px 104px 200px 108px 72px 72px 38px;gap:8px;align-items:center}
+  .elabels span{font-size:12px;font-weight:600;color:#8a8a8e;text-transform:uppercase;letter-spacing:.06em;padding-left:4px}
+  .erow input,.erow select,.eplanbar select,.ename{width:100%;height:46px;border:0;border-radius:12px;background:#25282c;color:#fff;
+    font:500 16px var(--font);padding:0 12px;outline:none;-webkit-appearance:none;appearance:none}
+  .erow select,.eplanbar select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238e9399' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 12px center;padding-right:28px}
+  .erow input::placeholder,.ename::placeholder{color:#6b7076}
+  .erow input:focus,.erow select:focus,.eplanbar select:focus,.ename:focus{box-shadow:inset 0 0 0 2px #ffd60a}
+  .erow input:disabled{opacity:.35}
+  .edel{width:38px;height:38px;border-radius:50%;border:0;background:#25282c;color:#8e9399;font-size:15px;cursor:pointer}
+  .eplus{display:grid;place-items:center;width:54px;height:54px;margin:18px auto 0;border-radius:50%;border:0;background:#25282c;color:#fff;font-size:32px;font-weight:300;line-height:1;cursor:pointer}
+  .eplus:active,.edel:active{background:#34383d}
+  .edefault{display:block;margin:28px auto 0;background:none;border:0;color:#8a8a8e;font:500 14px var(--font);padding:8px;cursor:pointer;text-decoration:underline}
+
+  .plansel-wrap{margin:12px 0 14px}
+  .plansel{display:block;width:100%;border:0;border-radius:20px;background-color:var(--card);color:var(--label);
+    font:600 19px/1.25 var(--font);letter-spacing:-.2px;
+    padding:20px 54px 20px 20px;-webkit-appearance:none;appearance:none;outline:none;text-overflow:ellipsis;cursor:pointer;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24'%3E%3Cpath d='M3 6h18l-9 13z' fill='%23ffd60a'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;background-position:right 20px center}
+  .plansel:focus-visible{box-shadow:0 0 0 2px var(--mint)}
+  .eplanbar{display:flex;gap:8px;margin:0 16px 10px}
+  .eplanbar select{flex:1;min-width:0;width:auto}
+  .enew{flex:none;height:46px;padding:0 16px;border:0;border-radius:12px;background:#ffd60a;color:#1a1a1a;font:700 15px var(--font);cursor:pointer}
+  .enew:active{background:#e6bf00}
+  .enamewrap{margin:0 16px 18px}
+  .ename{font-weight:600}
+  .edelplan{display:block;margin:6px auto 0;background:none;border:0;color:#ff3b30;font:500 15px var(--font);cursor:pointer;padding:10px}
+  .einfo{display:flex;justify-content:flex-end;margin:0 16px 10px}
+  .ibtn{width:32px;height:32px;border-radius:50%;border:1.5px solid #8e9399;background:none;color:#8e9399;font:700 16px/1 var(--font);cursor:pointer;padding:0}
+  .ibtn:active{background:#25282c}
+  .infoov{display:none;position:fixed;inset:0;z-index:60;align-items:center;justify-content:center;padding:24px;
+    background:rgba(0,0,0,.65);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+  .infoov.open{display:flex}
+  .infocard{position:relative;width:100%;max-width:360px;background:#25282c;color:#fff;border-radius:20px;padding:22px 22px 14px}
+  .infocard h3{margin:0 44px 14px 0;font-size:17px;font-weight:600}
+  .infocard p{margin:0 0 12px;font-size:15px;line-height:1.45;color:#d3d6da}
+  .iclose{position:absolute;top:14px;right:14px;width:34px;height:34px;border-radius:50%;border:0;background:#34383d;color:#fff;font-size:15px;cursor:pointer}
   @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 </style>
 </head>
@@ -105,18 +154,18 @@
 <div class="lock" id="lock">
   <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8.5 11V8a3.5 3.5 0 017 0v3"/></svg></div>
   <h2>Training</h2>
+  <select id="user" aria-label="Benutzer"><option>Paolo</option><option>Laurin</option></select>
   <input id="pw" type="password" placeholder="Passwort" autocomplete="current-password" autocapitalize="off" autocorrect="off" aria-label="Passwort">
   <div class="err" id="err" role="alert"></div>
-  <button class="go" id="go">Entsperren</button>
+  <button class="go" id="go">Anmelden</button>
 </div>
-<div class="nav" id="nav"><span>Training</span></div>
 <main>
-  <h1>Training</h1>
+  <div class="plansel-wrap"><select id="planSel" class="plansel" aria-label="Trainingsplan"></select></div>
 
   <div class="progress">
     <div class="daylbl" id="dayLabel">Heute</div>
     <div class="blk"><div class="row"><strong>Kraft</strong><em id="countS"></em></div><div class="track"><div class="fill" id="fillS"></div></div></div>
-    <div class="blk"><div class="row"><strong>Cardio</strong><em id="countC"></em></div><div class="track"><div class="fill" id="fillC"></div></div></div>
+    <div class="blk" id="blkC"><div class="row"><strong>Cardio</strong><em id="countC"></em></div><div class="track"><div class="fill" id="fillC"></div></div></div>
   </div>
   <div class="done-msg" id="doneMsg">
     <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm-1.2 14.2L6.9 12.3l1.4-1.4 2.5 2.5 5-5 1.4 1.4-6.4 6.4z"/></svg>
@@ -126,44 +175,135 @@
   <div class="head">Kraft</div>
   <div class="group" id="strength"></div>
 
-  <div class="head">Cardio</div>
+  <div class="head" id="headC">Cardio</div>
   <div class="group" id="cardio"></div>
 
   <button class="reset" id="reset">Tag zurücksetzen</button>
-  <button class="lockbtn" id="lockbtn">Sperren</button>
+  <button class="adjust" id="adjust">Training anpassen</button>
+  <button class="lockbtn" id="lockbtn">Abmelden</button>
 </main>
 
+<div class="editor" id="editor" role="dialog" aria-label="Workout Creator">
+  <div class="ehead">
+    <button id="eCancel">Abbrechen</button>
+    <b>Workout Creator</b>
+    <button class="esave" id="eSave">Speichern</button>
+  </div>
+  <div class="ewrap">
+    <div class="einfo"><button class="ibtn" id="eInfo" aria-label="Hinweise anzeigen">i</button></div>
+    <div class="eplanbar">
+      <select id="ePlanSel" aria-label="Plan wählen"></select>
+      <button class="enew" id="eNew">+ Neuer Plan</button>
+    </div>
+    <div class="enamewrap"><input class="ename" id="ePlanName" placeholder="Name des Plans" autocomplete="off" aria-label="Name des Plans"></div>
+    <div class="escroll"><div class="etable" id="eRows"></div></div>
+    <button class="eplus" id="ePlus" aria-label="Neue Zeile hinzufügen">+</button>
+    <button class="edefault" id="eDefault">Standardplan in diesen Plan laden</button>
+    <button class="edelplan" id="eDelPlan">Diesen Plan löschen</button>
+  </div>
+</div>
+
+<div class="infoov" id="infoOv" role="dialog" aria-label="Hinweise">
+  <div class="infocard">
+    <button class="iclose" id="infoClose" aria-label="Schließen">✕</button>
+    <h3>Hinweise</h3>
+    <p id="infoUser"></p>
+    <p>Wische nach rechts, um alle Felder zu sehen.</p>
+    <p>Gewicht ohne Einheit wird als kg angezeigt.</p>
+    <p>Bei Cardio steht der Text aus „Gewicht“ im Button-Feld.</p>
+  </div>
+</div>
 <script>
-const PLAN = [
-  {no:"31", name:"Reverse Pec Deck",         to:"35 kg",         reps:[6,6,6]},
-  {no:"30", name:"Schulterpresse",           to:"40 kg",         reps:[8,8,8]},
-  {no:"20", name:"Brustpresse",              to:"50 kg",         reps:[8,8,8]},
-  {no:"22", name:"Butterfly",                to:"50 kg",         reps:[6,6,6]},
-  {name:"Latzug zur Brust",                  to:"55 kg",         reps:[6,6,6]},
-  {name:"Rudern zur Brust",                  to:"50 kg",         reps:[6,6,6]},
-  {name:"Bizeps Freihantel",                 to:"20 kg gesamt",  reps:[8,8,8]},
-  {name:"Trizeps am Seil / Pushdown",        to:"35 kg",         reps:[8,8,8]},
-  {name:"Laufband", info:"Stufe 5, Steigung 5 · 10 Min.", cardio:true}
-];
-const REPS = [8, 8, 8]; // Wiederholungen für Satz 1 und Satz 2 (pro Übung mit reps:[..] überschreibbar)
-const KEY = "trainingsplan-v2";   // { "2026-10-11": { "0-0": true, ... }, ... }
+const REPS = [8, 8, 8];   // Standard-Wiederholungen (pro Übung mit reps:[..] überschreibbar)
+const USERS = {
+  Paolo: {
+    hash: "088e54ef8b1481323ae8cf91b88d4a4bc60bbfecb2c28ada1d3dffe7255944ef",
+    key: "trainingsplan-v2",
+    plan: [
+      {no:"31", name:"Reverse Pec Deck",         to:"35 kg",         reps:[6,6,6]},
+      {no:"30", name:"Schulterpresse",           to:"40 kg",         reps:[8,8,8]},
+      {no:"20", name:"Brustpresse",              to:"50 kg",         reps:[8,8,8]},
+      {no:"22", name:"Butterfly",                to:"50 kg",         reps:[6,6,6]},
+      {name:"Latzug zur Brust",                  to:"55 kg",         reps:[6,6,6]},
+      {name:"Rudern zur Brust",                  to:"50 kg",         reps:[6,6,6]},
+      {name:"Bizeps Freihantel",                 to:"20 kg gesamt",  reps:[8,8,8]},
+      {name:"Trizeps am Seil / Pushdown",        to:"35 kg",         reps:[8,8,8]},
+      {name:"Laufband", info:"Stufe 5, Steigung 5 · 10 Min.", cardio:true}
+    ]
+  },
+  Laurin: {
+    hash: "0fb54f97f618a12575a17984b2708197f99fcdda0511b113c2a865d7fabff91e",
+    key: "trainingsplan-v2-laurin",
+    plan: [
+      {no:"31", name:"Reverse Pec Deck",         to:"20 kg",         reps:[8,8,8]},
+      {no:"30", name:"Schulterpresse",           to:"25 kg",         reps:[10,10,10]},
+      {no:"21", name:"Butterfly / Brust",        to:"30 kg",         reps:[10,10,10]},
+      {name:"Latzug",                            to:"35 kg",         reps:[8,8,8]},
+      {name:"Sitzendes Rudern",                  to:"30 kg",         reps:[10,10,10]}
+    ]
+  }
+};
+const AUTH_KEY = "training-auth";      // merkt sich Benutzer + Hash auf diesem Gerät
 const pad = n => String(n).padStart(2,'0');
 const keyOf = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
 const today = new Date();
 const TODAY = keyOf(today);
-const TOTAL_S = PLAN.filter(e=>!e.cardio).reduce((a,e)=>a+(e.reps||REPS).length,0);
-const TOTAL_C = PLAN.filter(e=>e.cardio).length;
-const TOTAL = TOTAL_S + TOTAL_C;
+let USER = null, PLAN = [], KEY = "", TOTAL_S = 0, TOTAL_C = 0, TOTAL = 0;
 let all = {};
 let cur = TODAY;
 
-function load(){ try{ const r = localStorage.getItem(KEY); if(r) all = JSON.parse(r); }catch(e){} render(); }
 function save(){ try{ localStorage.setItem(KEY, JSON.stringify(all)); }catch(e){} }
+
+let PLANS = [], ACTIVE = '';
+const PLANS_KEY = n => 'training-plans-'+n.toLowerCase();
+function loadPlans(n){
+  let d = null;
+  try{ d = JSON.parse(localStorage.getItem(PLANS_KEY(n)) || 'null'); }catch(e){}
+  if(!(d && Array.isArray(d.plans) && d.plans.length)){
+    let items = USERS[n].plan;
+    try{ const o = JSON.parse(localStorage.getItem('training-plan-'+n.toLowerCase()) || 'null'); if(Array.isArray(o) && o.length) items = o; }catch(e){}
+    d = {active:'p1', plans:[{id:'p1', name:'Training', items}]};
+  }
+  PLANS = d.plans;
+  ACTIVE = PLANS.some(p=>p.id===d.active) ? d.active : PLANS[0].id;
+}
+function savePlans(){ try{ localStorage.setItem(PLANS_KEY(USER), JSON.stringify({active:ACTIVE, plans:PLANS})); }catch(e){} }
+const activePlan = () => PLANS.find(p=>p.id===ACTIVE) || PLANS[0];
+// Häkchen-Schlüssel: Plan "p1" behält das alte Format, damit bestehende Häkchen erhalten bleiben
+const ck = (i,k) => (ACTIVE==='p1' ? '' : ACTIVE+':') + i + '-' + k;
+function clearChecks(id){
+  const st = all[cur]; if(!st) return;
+  Object.keys(st).forEach(k=>{ const mine = id==='p1' ? !k.includes(':') : k.startsWith(id+':'); if(mine) delete st[k]; });
+}
+function setPlan(p){
+  PLAN = p;
+  TOTAL_S = PLAN.filter(e=>!e.cardio).reduce((a,e)=>a+(e.reps||REPS).length,0);
+  TOTAL_C = PLAN.filter(e=>e.cardio).length;
+  TOTAL = TOTAL_S + TOTAL_C;
+}
+function renderPlanSel(){
+  const sel = document.getElementById('planSel');
+  sel.innerHTML = PLANS.map(p=>`<option value="${p.id}">${String(p.name).replace(/&/g,'&amp;').replace(/</g,'&lt;')}</option>`).join('');
+  sel.value = ACTIVE;
+}
+document.getElementById('planSel').addEventListener('change', e=>{
+  ACTIVE = e.target.value; savePlans(); setPlan(activePlan().items); render();
+});
+const mlabel = no => /^\d+$/.test(no) ? 'M'+no : no;
+
+function login(name){
+  USER = name; KEY = USERS[name].key; loadPlans(name); setPlan(activePlan().items);
+  all = {}; cur = TODAY;
+  try{ const r = localStorage.getItem(KEY); if(r) all = JSON.parse(r); }catch(e){}
+  document.body.classList.remove('locked');
+  renderPlanSel(); render(); scrollTo(0,0);
+}
+
 function render(){
   const [y,m,d] = cur.split('-').map(Number);
   const dt = new Date(y,m-1,d);
   document.getElementById('dayLabel').textContent =
-    dt.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+    USER+' · '+dt.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
   const st = all[cur] || {};
   const s = document.getElementById('strength'), c = document.getElementById('cardio');
   s.innerHTML = c.innerHTML = '';
@@ -172,26 +312,30 @@ function render(){
     const n = ex.cardio ? 1 : (ex.reps||REPS).length;
     let allOn = true;
     const sets = Array.from({length:n},(_,k)=>{
-      const on = !!st[i+"-"+k]; if(on){ ex.cardio ? doneC++ : doneS++; } else allOn = false;
+      const on = !!st[ck(i,k)]; if(on){ ex.cardio ? doneC++ : doneS++; } else allOn = false;
       const reps = (ex.reps||REPS)[k];
       const label = ex.cardio ? ex.info : `${reps} Wdh`;
-      return `<button class="set ${on?'on':''}" data-k="${i}-${k}" aria-pressed="${on}">${label}</button>`;
+      return `<button class="set ${on?'on':''}" data-k="${ck(i,k)}" aria-pressed="${on}">${label}</button>`;
     }).join('');
     const el = document.createElement('div');
     el.className = 'item'+(allOn?' done':'')+(ex.cardio?' cardio':'');
     el.innerHTML = `
       <div class="top">
-        <div class="name">${ex.no?`<b class="m">M${ex.no}</b> `:''}${ex.name}</div>
+        <div class="name">${ex.no?`<b class="m">${mlabel(ex.no)}</b> `:''}${ex.name}</div>
         ${ex.to?`<div class="kg">${ex.to}</div>`:''}
       </div>
       <div class="sets">${sets}</div>`;
     (ex.cardio ? c : s).appendChild(el);
   });
+  const hasC = TOTAL_C > 0;
+  document.getElementById('blkC').style.display = hasC ? '' : 'none';
+  document.getElementById('headC').style.display = hasC ? '' : 'none';
+  c.style.display = hasC ? '' : 'none';
   document.getElementById('countS').textContent = doneS+' von '+TOTAL_S;
+  document.getElementById('fillS').style.width = (TOTAL_S ? doneS/TOTAL_S*100 : 0)+'%';
   document.getElementById('countC').textContent = doneC+' von '+TOTAL_C;
-  document.getElementById('fillS').style.width = (doneS/TOTAL_S*100)+'%';
-  document.getElementById('fillC').style.width = (doneC/TOTAL_C*100)+'%';
-  document.getElementById('doneMsg').classList.toggle('show', doneS+doneC===TOTAL);
+  document.getElementById('fillC').style.width = (TOTAL_C ? doneC/TOTAL_C*100 : 0)+'%';
+  document.getElementById('doneMsg').classList.toggle('show', TOTAL>0 && doneS+doneC===TOTAL);
 }
 
 document.addEventListener('click',e=>{
@@ -203,25 +347,127 @@ document.addEventListener('click',e=>{
   render(); save();
 });
 document.getElementById('reset').addEventListener('click',()=>{
-  if(confirm('Häkchen für diesen Tag zurücksetzen?')){ delete all[cur]; render(); save(); }
+  if(confirm('Häkchen für diesen Tag zurücksetzen?')){ clearChecks(ACTIVE); render(); save(); }
 });
-const nav = document.getElementById('nav');
-addEventListener('scroll',()=>nav.classList.toggle('on', scrollY > 40),{passive:true});
 
-// ---- Passwortschutz (gespeichert wird nur der Hash, nicht das Passwort) ----
-const PW_HASH = "088e54ef8b1481323ae8cf91b88d4a4bc60bbfecb2c28ada1d3dffe7255944ef";
-const AUTH_KEY = "training-auth";
+
+// ---- Training anpassen ----
+const E = id => document.getElementById(id);
+const esc = v => String(v==null?'':v).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;');
+let ED = [], edIdx = 0, draft = [];
+const blankRow = () => ({type:'s', no:'', name:'', w:'', sets:3, reps:8});
+const planToDraft = plan => plan.map(ex => ex.cardio
+  ? {type:'c', no:ex.no||'', name:ex.name, w:ex.info||'', sets:'', reps:''}
+  : {type:'s', no:ex.no||'', name:ex.name, w:ex.to||'', sets:(ex.reps||REPS).length, reps:(ex.reps||REPS)[0]});
+function draftToPlan(d){
+  const clamp = (v,min,max,def) => { const n = parseInt(v,10); return isNaN(n) ? def : Math.min(max,Math.max(min,n)); };
+  return d.filter(r => r.name.trim()).map(r => {
+    const no = r.no.trim(), w = r.w.trim();
+    if(r.type === 'c') return {no:no||undefined, name:r.name.trim(), info:w||'Erledigt', cardio:true};
+    const sets = clamp(r.sets,1,10,3), reps = clamp(r.reps,1,99,8);
+    return {no:no||undefined, name:r.name.trim(), to:/^[\d.,]+$/.test(w) ? w+' kg' : (w||undefined), reps:Array(sets).fill(reps)};
+  });
+}
+function renderRows(){
+  E('eRows').innerHTML =
+    '<div class="erow elabels"><span>Art</span><span>Maschine</span><span>Übung</span><span>Gewicht</span><span>Sätze</span><span>Wdh.</span><span></span></div>' +
+    draft.map((r,i)=>`<div class="erow" data-i="${i}">
+      <select data-f="type" aria-label="Art"><option value="s" ${r.type==='s'?'selected':''}>Kraft</option><option value="c" ${r.type==='c'?'selected':''}>Cardio</option></select>
+      <input data-f="no" value="${esc(r.no)}" placeholder="optional" autocomplete="off" autocapitalize="off" aria-label="Maschine">
+      <input data-f="name" value="${esc(r.name)}" placeholder="Übungsname" autocomplete="off" aria-label="Übungsname">
+      <input data-f="w" value="${esc(r.w)}" placeholder="${r.type==='c'?'Info':'z. B. 35'}" autocomplete="off" aria-label="Gewicht">
+      <input data-f="sets" type="number" inputmode="numeric" min="1" max="10" value="${esc(r.sets)}" placeholder="3" ${r.type==='c'?'disabled':''} aria-label="Anzahl Sätze">
+      <input data-f="reps" type="number" inputmode="numeric" min="1" max="99" value="${esc(r.reps)}" placeholder="8" ${r.type==='c'?'disabled':''} aria-label="Anzahl Wiederholungen">
+      <button class="edel" data-del="${i}" aria-label="Zeile löschen">✕</button>
+    </div>`).join('');
+}
+function renderEditor(){
+  const p = ED[edIdx]; draft = p.draft;
+  E('ePlanSel').innerHTML = ED.map((x,i)=>`<option value="${i}">${esc(x.name||'Plan')}</option>`).join('');
+  E('ePlanSel').value = edIdx;
+  E('ePlanName').value = p.name;
+  E('eDelPlan').style.display = ED.length > 1 ? '' : 'none';
+  renderRows();
+}
+function openEditor(){
+  ED = PLANS.map(p=>({id:p.id, name:p.name, draft:planToDraft(p.items)}));
+  edIdx = Math.max(0, ED.findIndex(p=>p.id===ACTIVE));
+  renderEditor();
+  E('editor').classList.add('open'); document.body.classList.add('editing');
+  E('editor').scrollTop = 0;
+}
+function closeEditor(){ E('editor').classList.remove('open'); document.body.classList.remove('editing'); scrollTo(0,0); }
+
+E('adjust').addEventListener('click', openEditor);
+E('eInfo').addEventListener('click', ()=>{ E('infoUser').textContent = 'Pläne für '+USER+'.'; E('infoOv').classList.add('open'); });
+E('infoClose').addEventListener('click', ()=>E('infoOv').classList.remove('open'));
+E('infoOv').addEventListener('click', e=>{ if(e.target === E('infoOv')) E('infoOv').classList.remove('open'); });
+E('eCancel').addEventListener('click', closeEditor);
+E('ePlanSel').addEventListener('change', e=>{ edIdx = +e.target.value; renderEditor(); });
+E('ePlanName').addEventListener('input', e=>{
+  ED[edIdx].name = e.target.value;
+  E('ePlanSel').options[edIdx].textContent = e.target.value || 'Plan';
+});
+E('eNew').addEventListener('click', ()=>{
+  ED.push({id:'p'+Date.now().toString(36), name:'Plan '+(ED.length+1), draft:[blankRow()]});
+  edIdx = ED.length - 1; renderEditor(); E('ePlanName').focus(); E('ePlanName').select();
+});
+E('eDelPlan').addEventListener('click', ()=>{
+  if(ED.length < 2) return;
+  if(!confirm('Plan "'+(ED[edIdx].name||'Plan')+'" löschen?')) return;
+  ED.splice(edIdx,1); edIdx = Math.min(edIdx, ED.length-1); renderEditor();
+});
+E('ePlus').addEventListener('click', ()=>{
+  draft.push(blankRow()); renderRows();
+  const rows = E('eRows').querySelectorAll('.erow:not(.elabels)');
+  const last = rows[rows.length-1]; if(last) last.querySelector('[data-f="name"]').focus();
+});
+E('eRows').addEventListener('input', e=>{
+  const f = e.target.dataset.f, row = e.target.closest('.erow'); if(!f || f==='type' || !row) return;
+  draft[+row.dataset.i][f] = e.target.value;
+});
+E('eRows').addEventListener('change', e=>{
+  if(e.target.dataset.f !== 'type') return;
+  const r = draft[+e.target.closest('.erow').dataset.i];
+  r.type = e.target.value;
+  if(r.type === 'c'){ r.sets = ''; r.reps = ''; } else { r.sets = r.sets || 3; r.reps = r.reps || 8; }
+  renderRows();
+});
+E('eRows').addEventListener('click', e=>{
+  const b = e.target.closest('[data-del]'); if(!b) return;
+  draft.splice(+b.dataset.del, 1); renderRows();
+});
+E('eDefault').addEventListener('click', ()=>{
+  if(confirm('Standardplan von '+USER+' in diesen Plan laden? Die Zeilen dieses Plans werden ersetzt.')){
+    ED[edIdx].draft = planToDraft(USERS[USER].plan); renderEditor();
+  }
+});
+E('eSave').addEventListener('click', ()=>{
+  const out = [];
+  for(let i=0;i<ED.length;i++){
+    const p = ED[i], items = draftToPlan(p.draft), name = p.name.trim() || 'Plan '+(i+1);
+    if(!items.length){ alert('Plan "'+name+'": Bitte mindestens eine Übung mit Namen eintragen.'); edIdx = i; renderEditor(); return; }
+    out.push({id:p.id, name, items});
+  }
+  out.forEach(p=>{ const old = PLANS.find(o=>o.id===p.id); if(old && JSON.stringify(old.items) !== JSON.stringify(p.items)) clearChecks(p.id); });
+  PLANS = out;
+  if(!PLANS.some(p=>p.id===ACTIVE)) ACTIVE = PLANS[0].id;
+  savePlans(); save(); setPlan(activePlan().items); renderPlanSel(); closeEditor(); render();
+});
+
+// ---- Anmeldung (gespeichert werden nur Hashes, keine Klartext-Passwörter) ----
 async function sha256(t){
   const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t));
   return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
 }
-function unlock(){ document.body.classList.remove('locked'); }
-async function tryUnlock(){
-  const input = document.getElementById('pw'), err = document.getElementById('err'), box = document.getElementById('lock');
+async function tryLogin(){
+  const sel = document.getElementById('user'), input = document.getElementById('pw'),
+        err = document.getElementById('err'), box = document.getElementById('lock');
+  const name = sel.value;
   try{
-    if(await sha256(input.value) === PW_HASH){
-      try{ localStorage.setItem(AUTH_KEY, PW_HASH); }catch(e){}
-      input.value = ''; err.textContent = ''; unlock(); return;
+    if(await sha256(input.value) === USERS[name].hash){
+      try{ localStorage.setItem(AUTH_KEY, JSON.stringify({user:name, hash:USERS[name].hash})); }catch(e){}
+      input.value = ''; err.textContent = ''; login(name); return;
     }
     err.textContent = 'Falsches Passwort';
   }catch(e){
@@ -230,15 +476,19 @@ async function tryUnlock(){
   box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
   input.select();
 }
-document.getElementById('go').addEventListener('click', tryUnlock);
-document.getElementById('pw').addEventListener('keydown', e=>{ if(e.key==='Enter') tryUnlock(); });
+document.getElementById('go').addEventListener('click', tryLogin);
+document.getElementById('pw').addEventListener('keydown', e=>{ if(e.key==='Enter') tryLogin(); });
 document.getElementById('lockbtn').addEventListener('click', ()=>{
+  const last = USER;
   try{ localStorage.removeItem(AUTH_KEY); }catch(e){}
+  document.getElementById('user').value = last || 'Paolo';
+  document.getElementById('err').textContent = '';
   document.body.classList.add('locked'); scrollTo(0,0);
 });
-try{ if(localStorage.getItem(AUTH_KEY) === PW_HASH) unlock(); }catch(e){}
-
-load();
+try{
+  const a = JSON.parse(localStorage.getItem(AUTH_KEY) || 'null');
+  if(a && USERS[a.user] && USERS[a.user].hash === a.hash){ document.getElementById('user').value = a.user; login(a.user); }
+}catch(e){}
 if('serviceWorker' in navigator){ addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
 </script>
 </body>
