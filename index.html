@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0c0e11">
+<meta name="color-scheme" content="dark">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Training">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" href="icon-192.png">
+<title>Training</title>
+<style>
+  :root{
+    --bg:#0c0e11; --card:#25282c; --label:#ffffff; --secondary:#8e9399; --sep:#34383d; --line:#3a3e44;
+    --fill:#25282c; --blue:#2f8fe8; --green:#65e83c; --mint:#5fe3a1; --orange:#ff9f0a; --red:#ff5a50;
+    --bar:rgba(12,14,17,.78);
+    --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro Display",system-ui,"Helvetica Neue",sans-serif;
+    --display:"DIN Condensed","DIN Alternate","Barlow Condensed","Arial Narrow",-apple-system,sans-serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html{-webkit-text-size-adjust:100%}
+  body{margin:0;background:linear-gradient(180deg,#1b1e22 0,#0c0e11 420px) var(--bg) no-repeat;min-height:100vh;color:var(--label);font:17px/1.3 var(--font);-webkit-font-smoothing:antialiased;
+    padding-bottom:max(40px,env(safe-area-inset-bottom))}
+
+  /* Navigationsleiste mit Unschärfe, Titel erscheint beim Scrollen */
+  .nav{letter-spacing:.14em;text-transform:uppercase;font-size:15px;position:sticky;top:0;z-index:5;height:calc(44px + env(safe-area-inset-top,0px));padding-top:env(safe-area-inset-top,0px);
+    display:flex;align-items:center;justify-content:center;font-weight:500;
+    background:var(--bar);-webkit-backdrop-filter:saturate(180%) blur(20px);backdrop-filter:saturate(180%) blur(20px);
+    border-bottom:.5px solid transparent;transition:border-color .2s}
+  .nav span{opacity:0;transition:opacity .2s}
+  .nav.on{border-color:var(--sep)}
+  .nav.on span{opacity:1}
+
+  main{max-width:560px;margin:0 auto;padding:0 16px}
+  h1{font-family:var(--display);font-size:40px;line-height:1.05;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin:-4px 0 18px}
+
+  .progress{background:var(--card);color:var(--label);border-radius:20px;padding:16px 18px;margin-bottom:8px}
+  .daylbl{font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--secondary);margin-bottom:14px}
+  .progress .blk + .blk{margin-top:16px}
+  .progress .row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:10px}
+  .progress strong{font-size:13px;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+  .progress em{font-style:normal;color:var(--mint);font-family:var(--display);font-weight:700;letter-spacing:.06em;font-size:20px;font-variant-numeric:tabular-nums}
+  .track{height:6px;border-radius:3px;background:#3a3e44;overflow:hidden}
+  .fill{height:100%;width:0;border-radius:3px;background:var(--green);transition:width .4s cubic-bezier(.3,.9,.3,1),background .3s}
+
+  .head{font-size:13px;font-weight:700;text-transform:uppercase;color:var(--label);letter-spacing:.14em;margin:24px 0 6px}
+  .group{}
+  .group{display:flex;flex-direction:column;gap:14px}
+  .item{padding:16px;position:relative;border:1.5px solid var(--line);border-radius:20px;background:transparent}
+  .name{font-size:19px;font-weight:600;letter-spacing:-.2px;transition:color .2s}
+  .meta{font-size:13px;color:var(--secondary);margin-top:2px}
+  .m{color:var(--blue);font-weight:600}
+  .top{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
+  .kg{color:var(--label);font-size:19px;font-weight:600;white-space:nowrap;letter-spacing:-.2px;text-align:right}
+  .name,.kg{transition:opacity .25s}
+  .item.done .name,.item.done .kg{opacity:.38}
+
+  .sets{display:flex;gap:8px;margin-top:14px}
+  .set{display:inline-flex;align-items:center;gap:6px;flex:1;justify-content:center;height:36px;padding:0 6px;border:1.5px solid var(--line);border-radius:16px;
+    background:transparent;color:var(--label);font:400 13px var(--font);cursor:pointer;transition:background .2s,color .2s,transform .12s}
+  .set:active{transform:scale(.95)}
+  .set:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+  .set.on{background:var(--green);border-color:var(--green);color:#0c0e11}
+
+
+  .done-msg{display:none;align-items:center;gap:10px;margin:8px 0 0;padding:14px 16px;border-radius:20px;background:var(--fill);
+    font-weight:700;letter-spacing:.08em;text-transform:uppercase;font-size:13px;color:var(--mint)}
+  .done-msg.show{display:flex;animation:in .35s ease}
+  .done-msg svg{width:22px;height:22px}
+  @keyframes in{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+
+  .foot{font-size:13px;color:var(--secondary);margin:8px 0 0;line-height:1.4}
+  .reset{display:block;width:100%;margin-top:24px;padding:14px;border:0;border-radius:20px;background:var(--fill);
+    color:var(--red);font:400 17px var(--font);cursor:pointer}
+  .reset:active{background:var(--sep)}
+  body.locked .nav, body.locked main{display:none}
+  .lock{display:none;position:fixed;inset:0;z-index:50;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    padding:max(24px,env(safe-area-inset-top)) 28px max(24px,env(safe-area-inset-bottom));
+    background:linear-gradient(180deg,#1b1e22 0,#0c0e11 70%) var(--bg)}
+  body.locked .lock{display:flex}
+  .lock .ring{width:84px;height:84px;border-radius:50%;border:5px solid var(--green);display:grid;place-items:center;margin-bottom:6px}
+  .lock .ring svg{width:34px;height:34px;color:var(--label)}
+  .lock h2{margin:0 0 10px;font-family:var(--display);font-size:34px;font-weight:700;letter-spacing:.1em;text-transform:uppercase}
+  .lock input{width:100%;max-width:320px;height:54px;border-radius:20px;border:1.5px solid var(--line);background:var(--card);color:var(--label);
+    font:500 17px var(--font);text-align:center;letter-spacing:.12em;outline:none;-webkit-appearance:none;appearance:none}
+  .lock input:focus{border-color:var(--green)}
+  .lock .go{width:100%;max-width:320px;height:54px;border:0;border-radius:20px;background:var(--green);color:#0c0e11;
+    font:700 15px var(--font);letter-spacing:.14em;text-transform:uppercase;cursor:pointer}
+  .lock .go:active{transform:scale(.97)}
+  .lock .err{height:18px;font-size:13px;color:var(--red);letter-spacing:.04em}
+  .lock.shake input{animation:shake .4s}
+  @keyframes shake{20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+  .lockbtn{display:block;margin:14px auto 0;background:none;border:0;color:var(--secondary);font:500 13px var(--font);letter-spacing:.1em;text-transform:uppercase;cursor:pointer;padding:8px}
+  @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body class="locked">
+<div class="lock" id="lock">
+  <div class="ring"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2.5"/><path d="M8.5 11V8a3.5 3.5 0 017 0v3"/></svg></div>
+  <h2>Training</h2>
+  <input id="pw" type="password" placeholder="Passwort" autocomplete="current-password" autocapitalize="off" autocorrect="off" aria-label="Passwort">
+  <div class="err" id="err" role="alert"></div>
+  <button class="go" id="go">Entsperren</button>
+</div>
+<div class="nav" id="nav"><span>Training</span></div>
+<main>
+  <h1>Training</h1>
+
+  <div class="progress">
+    <div class="daylbl" id="dayLabel">Heute</div>
+    <div class="blk"><div class="row"><strong>Kraft</strong><em id="countS"></em></div><div class="track"><div class="fill" id="fillS"></div></div></div>
+    <div class="blk"><div class="row"><strong>Cardio</strong><em id="countC"></em></div><div class="track"><div class="fill" id="fillC"></div></div></div>
+  </div>
+  <div class="done-msg" id="doneMsg">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm-1.2 14.2L6.9 12.3l1.4-1.4 2.5 2.5 5-5 1.4 1.4-6.4 6.4z"/></svg>
+    Training abgeschlossen
+  </div>
+
+  <div class="head">Kraft</div>
+  <div class="group" id="strength"></div>
+
+  <div class="head">Cardio</div>
+  <div class="group" id="cardio"></div>
+
+  <button class="reset" id="reset">Tag zurücksetzen</button>
+  <button class="lockbtn" id="lockbtn">Sperren</button>
+</main>
+
+<script>
+const PLAN = [
+  {no:"31", name:"Reverse Pec Deck",         to:"35 kg",         reps:[6,6,6]},
+  {no:"30", name:"Schulterpresse",           to:"40 kg",         reps:[8,8,8]},
+  {no:"20", name:"Brustpresse",              to:"50 kg",         reps:[8,8,8]},
+  {no:"22", name:"Butterfly",                to:"50 kg",         reps:[6,6,6]},
+  {name:"Latzug zur Brust",                  to:"55 kg",         reps:[6,6,6]},
+  {name:"Rudern zur Brust",                  to:"50 kg",         reps:[6,6,6]},
+  {name:"Bizeps Freihantel",                 to:"20 kg gesamt",  reps:[8,8,8]},
+  {name:"Trizeps am Seil / Pushdown",        to:"35 kg",         reps:[8,8,8]},
+  {name:"Laufband", info:"Stufe 5, Steigung 5 · 10 Min.", cardio:true}
+];
+const REPS = [8, 8, 8]; // Wiederholungen für Satz 1 und Satz 2 (pro Übung mit reps:[..] überschreibbar)
+const KEY = "trainingsplan-v2";   // { "2026-10-11": { "0-0": true, ... }, ... }
+const pad = n => String(n).padStart(2,'0');
+const keyOf = d => d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());
+const today = new Date();
+const TODAY = keyOf(today);
+const TOTAL_S = PLAN.filter(e=>!e.cardio).reduce((a,e)=>a+(e.reps||REPS).length,0);
+const TOTAL_C = PLAN.filter(e=>e.cardio).length;
+const TOTAL = TOTAL_S + TOTAL_C;
+let all = {};
+let cur = TODAY;
+
+function load(){ try{ const r = localStorage.getItem(KEY); if(r) all = JSON.parse(r); }catch(e){} render(); }
+function save(){ try{ localStorage.setItem(KEY, JSON.stringify(all)); }catch(e){} }
+function render(){
+  const [y,m,d] = cur.split('-').map(Number);
+  const dt = new Date(y,m-1,d);
+  document.getElementById('dayLabel').textContent =
+    dt.toLocaleDateString('de-DE',{weekday:'long',day:'numeric',month:'long'});
+  const st = all[cur] || {};
+  const s = document.getElementById('strength'), c = document.getElementById('cardio');
+  s.innerHTML = c.innerHTML = '';
+  let doneS = 0, doneC = 0;
+  PLAN.forEach((ex,i)=>{
+    const n = ex.cardio ? 1 : (ex.reps||REPS).length;
+    let allOn = true;
+    const sets = Array.from({length:n},(_,k)=>{
+      const on = !!st[i+"-"+k]; if(on){ ex.cardio ? doneC++ : doneS++; } else allOn = false;
+      const reps = (ex.reps||REPS)[k];
+      const label = ex.cardio ? ex.info : `${reps} Wdh`;
+      return `<button class="set ${on?'on':''}" data-k="${i}-${k}" aria-pressed="${on}">${label}</button>`;
+    }).join('');
+    const el = document.createElement('div');
+    el.className = 'item'+(allOn?' done':'');
+    el.innerHTML = `
+      <div class="top">
+        <div class="name">${ex.no?`<b class="m">M${ex.no}</b> `:''}${ex.name}</div>
+        ${ex.to?`<div class="kg">${ex.to}</div>`:''}
+      </div>
+      <div class="sets">${sets}</div>`;
+    (ex.cardio ? c : s).appendChild(el);
+  });
+  document.getElementById('countS').textContent = doneS+' von '+TOTAL_S;
+  document.getElementById('countC').textContent = doneC+' von '+TOTAL_C;
+  document.getElementById('fillS').style.width = (doneS/TOTAL_S*100)+'%';
+  document.getElementById('fillC').style.width = (doneC/TOTAL_C*100)+'%';
+  document.getElementById('doneMsg').classList.toggle('show', doneS+doneC===TOTAL);
+}
+
+document.addEventListener('click',e=>{
+  const b = e.target.closest('.set'); if(!b) return;
+  const k = b.dataset.k;
+  const st = all[cur] || (all[cur] = {});
+  st[k] = !st[k];
+  if(navigator.vibrate) navigator.vibrate(10);
+  render(); save();
+});
+document.getElementById('reset').addEventListener('click',()=>{
+  if(confirm('Häkchen für diesen Tag zurücksetzen?')){ delete all[cur]; render(); save(); }
+});
+const nav = document.getElementById('nav');
+addEventListener('scroll',()=>nav.classList.toggle('on', scrollY > 40),{passive:true});
+
+// ---- Passwortschutz (gespeichert wird nur der Hash, nicht das Passwort) ----
+const PW_HASH = "088e54ef8b1481323ae8cf91b88d4a4bc60bbfecb2c28ada1d3dffe7255944ef";
+const AUTH_KEY = "training-auth";
+async function sha256(t){
+  const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t));
+  return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+function unlock(){ document.body.classList.remove('locked'); }
+async function tryUnlock(){
+  const input = document.getElementById('pw'), err = document.getElementById('err'), box = document.getElementById('lock');
+  try{
+    if(await sha256(input.value) === PW_HASH){
+      try{ localStorage.setItem(AUTH_KEY, PW_HASH); }catch(e){}
+      input.value = ''; err.textContent = ''; unlock(); return;
+    }
+    err.textContent = 'Falsches Passwort';
+  }catch(e){
+    err.textContent = 'Bitte die Seite über https öffnen';
+  }
+  box.classList.remove('shake'); void box.offsetWidth; box.classList.add('shake');
+  input.select();
+}
+document.getElementById('go').addEventListener('click', tryUnlock);
+document.getElementById('pw').addEventListener('keydown', e=>{ if(e.key==='Enter') tryUnlock(); });
+document.getElementById('lockbtn').addEventListener('click', ()=>{
+  try{ localStorage.removeItem(AUTH_KEY); }catch(e){}
+  document.body.classList.add('locked'); scrollTo(0,0);
+});
+try{ if(localStorage.getItem(AUTH_KEY) === PW_HASH) unlock(); }catch(e){}
+
+load();
+if('serviceWorker' in navigator){ addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{})); }
+</script>
+</body>
+</html>
